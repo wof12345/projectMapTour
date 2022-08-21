@@ -1,0 +1,32 @@
+body {
+	overflow-x: hidden;
+}
+
+.option-common {
+	padding: 3px 5px;
+	border-radius: 20px;
+	background-color: white;
+	font-size: 11px;
+	transition: 0.5s;
+	margin: 3px 8px;
+	outline: none;
+	box-shadow: 5px 5px 11px 10px rgba(0, 0, 0, 0.074);
+}
+
+.option-common:hover {
+	cursor: pointer;
+	opacity: 0.5;
+}
+
+::-webkit-scrollbar {
+	width: 1px;
+}
+
+::-webkit-scrollbar-track {
+	background: #000000;
+}
+
+::-webkit-scrollbar-thumb {
+	background: rgb(255, 255, 255);
+	border-radius: 30px;
+}
