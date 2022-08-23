@@ -2,6 +2,10 @@
 	import { createEventDispatcher } from 'svelte';
 
 	const dispatch = createEventDispatcher();
+	let liked = {
+		state: false,
+		sign: '\u2661'
+	};
 
 	export let item = {};
 
@@ -10,13 +14,30 @@
 			text: itemID
 		});
 	}
+
+	function likedSwitch() {
+		if (!liked.state) {
+			liked.state = true;
+			liked.sign = '\u2665';
+			console.log(liked.sign);
+			return;
+		}
+
+		liked.state = false;
+		liked.sign = '\u2661';
+	}
 </script>
 
 <div
 	class="h-max w-72 [&>*]:my-1 hover:bg-slate-300 p-2 hover:cursor-pointer transition ease-in-out delay-75 rounded-lg relative"
 >
-	<img class="max-h-36 w-full rounded-lg" src={item.imgSrc} alt="" />
-	<img class="absolute bg-black aspect-square top-7 right-7 w-5" src="" alt="" />
+	<img class="max-h-36 w-full rounded-lg" src={item.imgSrc[0]} alt="" />
+	<p
+		class="absolute text-white text-3xl h-7 top-5 right-7 w-7 hover:bg-gray-500 hover:bg-opacity-60 p-1 rounded-full flex items-center"
+		on:click={likedSwitch}
+	>
+		{liked.sign}
+	</p>
 
 	<h2 class="text-xl font-semibold px-3  hover:text-blue-600">{item.title}</h2>
 	<p class="text-sm text-gray-400 px-3">{item.smallDesc}</p>

@@ -14,44 +14,31 @@
 		{ imgSrc: '', linkName: 'Events' },
 		{ imgSrc: '', linkName: 'Events' }
 	];
+
 	let currentOptions = [
 		{ type: 'date', name: 'Date' },
 		{ type: 'normal', name: 'Resturants' }
 	];
+
 	let currentItemData = [
 		{
-			imgSrc: 'mime.jpg',
+			tourId: '',
+			tourName: '',
+			tourLocation: {
+				coordinates: [],
+				string: []
+			},
+			imgSrc: ['mime.jpg', 'mime.jpg'],
 			price: '343',
 			title: 'rand',
 			smallDesc: 'asf',
-			likes: 0
-		},
-		{
-			imgSrc: 'mime.jpg',
-			price: '343',
-			title: 'rand',
-			smallDesc: 'asf',
-			likes: 0
-		},
-		{
-			imgSrc: 'mime.jpg',
-			price: '343',
-			title: 'rand',
-			smallDesc: 'asf',
-			likes: 0
-		},
-		{
-			imgSrc: 'mime.jpg',
-			price: '343',
-			title: 'rand',
-			smallDesc: 'asf',
-			likes: 0
-		},
-		{
-			imgSrc: 'mime.jpg',
-			price: '343',
-			title: 'rand',
-			smallDesc: 'asf',
+			whatUserDoes: 'lorem',
+			keyFeatures: [{ featureName: 'feature1', featureImg: 'mime.jpg', featureDesc: 'lorem' }],
+			meetUsersHost: {
+				hostImg: '',
+				hostName: '',
+				hostDesc: ''
+			},
 			likes: 0
 		}
 	];
