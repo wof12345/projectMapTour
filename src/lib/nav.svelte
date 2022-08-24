@@ -1,16 +1,42 @@
 <script>
+	import { createEventDispatcher } from 'svelte';
+	const dispatch = createEventDispatcher();
+
 	export let navLinks = [];
+
+	let activeID = 0;
+
+	function clickListenerDispatcher(itemID) {
+		activeID = itemID;
+		let header = '';
+		if (itemID === 0) {
+			header = 'Events';
+		} else if (itemID === 1) {
+			header = 'Foods';
+		} else if (itemID === 2) {
+			header = 'Offers';
+		} else {
+			header = 'Services';
+		}
+		dispatch('message', {
+			text: itemID,
+			head: header
+		});
+	}
 </script>
 
-<nav class="flex items-center justify-between p-6 pl-8 pr-8 shadow-md fixed z-20 w-screen bg-white">
+<nav class="flex items-center justify-between p-6 pl-8 pr-8 shadow-md fixed z-30 w-screen bg-white">
 	<logo>
 		<img src="" alt="" />
-		<p>Waive</p>
+		<p class="font-bold">Waive</p>
 	</logo>
 
 	<navLinks class="w-max flex items-center justify-between">
-		{#each navLinks as link}
-			<button class="p-5 pt-2 pb-2">
+		{#each navLinks as link, index}
+			<button
+				class="p-5 pt-2 pb-2 {activeID === index ? 'text-blue-500' : ''}"
+				on:click={clickListenerDispatcher.bind(this, index)}
+			>
 				<img src={link.imgSrc} alt="" />
 				<p>{link.linkName}</p>
 			</button>
