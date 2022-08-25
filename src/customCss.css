@@ -6,6 +6,10 @@ body {
 	overflow-x: hidden;
 }
 
+.transition_custom01 {
+	transition: 1.5s;
+}
+
 .option-common {
 	padding: 3px 5px;
 	border-radius: 20px;

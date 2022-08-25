@@ -7,8 +7,8 @@
 	import { onMount } from 'svelte';
 	import Nav from '../lib/nav.svelte';
 	import Tour from '../lib/tour.svelte';
-	import TourPage from '../lib/tourpage.svelte';
 	import Tourpage from '../lib/tourpage.svelte';
+	import { fly, fade, slide } from 'svelte/transition';
 
 	let currentNavLinks = [
 		{ imgSrc: '', linkName: 'Events' },
@@ -32,21 +32,28 @@
 				coordinates: [],
 				string: []
 			},
-			imgSrc: ['mime.jpg', 'mime.jpg'],
+			imgSrc: ['mime.jpg', 'mime.jpg', 'mime.jpg', 'mime.jpg'],
 			price: '343',
 			title: 'rand',
 			smallDesc: 'asf',
+			userOppertunity: "What you'll do",
 			whatUserDoes: 'lorem',
-			keyFeatures: [{ featureName: 'feature1', featureImg: 'mime.jpg', featureDesc: 'lorem' }],
+			keyFeatures: [
+				{ featureName: 'feature1', featureImg: 'mime.jpg', featureDesc: 'lorem' },
+				{ featureName: 'feature1', featureImg: 'mime.jpg', featureDesc: 'lorem' },
+				{ featureName: 'feature1', featureImg: 'mime.jpg', featureDesc: 'lorem' },
+				{ featureName: 'feature1', featureImg: 'mime.jpg', featureDesc: 'lorem' }
+			],
 			meetUsersHost: {
-				hostImg: '',
-				hostName: '',
-				hostDesc: ''
+				hostImg: 'mime.jpg',
+				hostName: 'Alenka kutros',
+				hostDesc: 'Hello lorem'
 			},
-			likes: 0
+			likes: 0,
+			tourLink: 'www.rand.com'
 		},
 		{
-			tourId: '#001tourDetails',
+			tourId: '#002tourDetails',
 			tourType: 'Event',
 			tourName: 'France',
 			tourDate: '',
@@ -54,10 +61,11 @@
 				coordinates: [],
 				string: []
 			},
-			imgSrc: ['mime.jpg', 'mime.jpg'],
+			imgSrc: ['mime.jpg', 'mime.jpg', 'mime.jpg', 'mime.jpg'],
 			price: '343',
-			title: 'rand',
+			title: 'The Darkest Secrets of Paris',
 			smallDesc: 'asf',
+			userOppertunity: "What you'll do",
 			whatUserDoes: 'lorem',
 			keyFeatures: [{ featureName: 'feature1', featureImg: 'mime.jpg', featureDesc: 'lorem' }],
 			meetUsersHost: {
@@ -65,7 +73,8 @@
 				hostName: '',
 				hostDesc: ''
 			},
-			likes: 0
+			likes: 0,
+			tourLink: `www.thedarkestparis.com`
 		}
 	];
 
@@ -75,8 +84,8 @@
 	let activeHead = '';
 	let activeTour = currentItemData[0];
 	let tourPageShown = false;
-	let animationParamLoadTop = 'fitFull';
-	let animationParamLoadMain = 'slideFit';
+	let widthMain = 'full';
+	let loadBar = { width: '0', opacity: '0' };
 
 	onMount(() => {
 		const map = new Map({
@@ -106,9 +115,28 @@
 		map.addLayer(cusLayer);
 	});
 
+	animation01Start('2/3');
+
+	function animation01Start(passedWidth) {
+		loadBar.opacity = '0';
+		setTimeout(() => {
+			widthMain = passedWidth;
+			loadBar.width = 'full';
+			loadBar.opacity = '1';
+		}, 200);
+
+		setTimeout(() => {
+			loadBar.opacity = '0';
+		}, 1000);
+
+		setTimeout(() => {
+			loadBar.width = '0';
+		}, 1500);
+	}
+
 	function changeAnimationParam() {
-		animationParamLoadTop = 'fitFull';
-		animationParamLoadMain = 'fitFull';
+		widthMain = 'full';
+		animation01Start(widthMain);
 	}
 
 	function populateCatagories() {
@@ -131,7 +159,6 @@
 	}
 
 	function invokeViewPage(event) {
-		animationParamLoadTop = '';
 		console.log(event.detail.text);
 		setTimeout(() => {
 			tourPageShown = true;
@@ -147,47 +174,50 @@
 
 <div class="h-screen w-screen overflow-x-hidden">
 	<Nav on:message={handleCatagoryChange} navLinks={currentNavLinks} />
-	<div class="w-screen h-0.5  absolute  mt-[92px] z-30 ">
-		{#if animationParamLoadTop === 'fitFull'}
-			<div class="w-full opacity-0  h-full bg-blue-400 animate-{animationParamLoadTop}">1</div>
-		{/if}
+	<div class="w-screen h-0.5 fixed top-[92px] z-30 ">
+		<div
+			class="transition_custom01 w-{loadBar.width} opacity-{loadBar.opacity} h-full bg-blue-600 "
+		/>
 	</div>
 
 	<div class="h-[650px] w-full flex mt-[92px]">
 		<div
-			class="main_cont h-full w-2/3  overflow-y-auto shadow-2xl animate-{animationParamLoadMain} absolute bg-white z-10"
+			class="transition_custom01 h-full w-{widthMain} overflow-y-auto shadow-2xl  absolute bg-white z-10"
 		>
-			<div class="h-screen  w-full  flex flex-col [&>*]:my-3 pl-9 animate-upFit">
-				<h1 class="text-xl px-9">{activeCatagory.length} {activeHead} near you</h1>
+			{#if !tourPageShown}
+				<div
+					class="h-screen  w-full  flex flex-col [&>*]:my-3 pl-9 animate-upFit "
+					transition:fade={{ duration: 1300 }}
+				>
+					<h1 class="text-xl px-9">{activeCatagory.length} {activeHead} near you</h1>
 
-				<div class="flex flex-wrap px-9">
-					{#each currentOptions as option}
-						{#if option.type === 'selective'}
-							<select class="option-common" name="option" id={option.name}>
-								{#each option.options as options}
-									<option value={options}>options</option>
-								{/each}
-							</select>
-						{:else if option.type === 'date'}
-							<input class="option-common" type="date" placeholder={option.name} />
-						{:else}
-							<div class="option-common">{option.name}</div>
-						{/if}
-					{/each}
-				</div>
+					<div class="flex flex-wrap px-9">
+						{#each currentOptions as option}
+							{#if option.type === 'selective'}
+								<select class="option-common" name="option" id={option.name}>
+									{#each option.options as options}
+										<option value={options}>options</option>
+									{/each}
+								</select>
+							{:else if option.type === 'date'}
+								<input class="option-common" type="date" placeholder={option.name} />
+							{:else}
+								<div class="option-common">{option.name}</div>
+							{/if}
+						{/each}
+					</div>
 
-				<div class="flex flex-wrap justify-between p-6 px-8 max-w-[720px]">
-					{#each activeCatagory as item}
-						<Tour on:message={invokeViewPage} {item} />
-					{/each}
+					<div class="flex flex-wrap justify-between p-6 px-8 max-w-[720px]">
+						{#each activeCatagory as item}
+							<Tour on:message={invokeViewPage} {item} />
+						{/each}
+					</div>
 				</div>
-			</div>
+			{:else}
+				<Tourpage activePath={activeHead} tour={activeTour} />
+			{/if}
 		</div>
 
 		<div class="h-full w-2/6 absolute  right-0 " id="map" />
 	</div>
-
-	{#if tourPageShown}
-		<Tourpage tour={activeTour} />
-	{/if}
 </div>
