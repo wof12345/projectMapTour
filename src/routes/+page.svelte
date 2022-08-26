@@ -1,9 +1,5 @@
 <script>
-	import 'ol/ol.css';
-	import { Map, View } from 'ol';
-	import OSM from 'ol/source/OSM';
-	import { Tile as TileLayer, Group } from 'ol/layer';
-	import { fromLonLat } from 'ol/proj';
+	import 'ol/css';
 	import { onMount } from 'svelte';
 	import Nav from '../lib/nav.svelte';
 	import Tour from '../lib/tour.svelte';
@@ -88,31 +84,51 @@
 	let loadBar = { width: '0', opacity: '0' };
 
 	onMount(() => {
-		const map = new Map({
+		const iconFeature = new ol.Feature({
+			geometry: new ol.geom.Point([261349.18986250658, 6250072.354477512]), //This marker will not move.
+			name: 'Somewhere'
+		});
+
+		const map = new ol.Map({
+			target: 'map',
 			layers: [
-				new Group({
-					layers: [
-						new TileLayer({
-							source: new OSM()
+				new ol.layer.Tile({
+					source: new ol.source.OSM()
+				}),
+				new ol.layer.Vector({
+					source: new ol.source.Vector({
+						features: [iconFeature]
+					}),
+					style: new ol.style.Style({
+						image: new ol.style.Icon({
+							anchor: [2.349014, 48.864716],
+							anchorXUnits: 'fraction',
+							anchorYUnits: 'pixels',
+							src: 'mappin.svg'
 						})
-					]
+					})
 				})
 			],
-			target: 'map',
-			view: new View({
-				center: fromLonLat([45, 43.2951]),
-				zoom: 11
+			view: new ol.View({
+				center: ol.proj.fromLonLat([2.349014, 48.864716]),
+				zoom: 12,
+				minZoom: 4
 			})
 		});
-		const source = OSM();
-		map.setView(
-			new View({
-				center: [0, 0],
-				zoom: 11
-			})
-		);
-		const cusLayer = new TileLayer({ source: source });
-		map.addLayer(cusLayer);
+
+		const stamenTerrain = new ol.layer.Tile({
+			source: new ol.source.XYZ({
+				url: `https://stamen-tiles.a.ssl.fastly.net/terrain/{z}/{x}/{y}.jpg`,
+				attributions: 'Map tiles by Stamen'
+			}),
+			visible: true,
+			title: 'Stamen Terrain'
+		});
+		// map.addLayer(stamenTerrain);
+
+		map.on('click', (e) => {
+			console.log(e.coordinate);
+		});
 	});
 
 	animation01Start('2/3');

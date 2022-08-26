@@ -1,5 +1,6 @@
 <script>
 	import { createEventDispatcher } from 'svelte';
+	import { fly, fade, slide } from 'svelte/transition';
 
 	const dispatch = createEventDispatcher();
 	let liked = {
@@ -28,7 +29,10 @@
 	}
 </script>
 
-<div class="h-max w-72 [&>*]:my-1 hover:bg-slate-300 p-2 hover:cursor-pointer rounded-lg relative">
+<div
+	class="h-max w-72 [&>*]:my-1 hover:bg-slate-300 p-2 hover:cursor-pointer rounded-lg relative"
+	transition:fade={{ duration: 700 }}
+>
 	<img class="max-h-36 w-full rounded-xl" src={item.imgSrc[0]} alt="" />
 	<p
 		class="absolute text-white text-3xl h-7 top-5 right-7 w-7 hover:bg-gray-500 hover:bg-opacity-60 p-1 rounded-full flex items-center"

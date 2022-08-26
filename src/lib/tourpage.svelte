@@ -1,7 +1,6 @@
 <script>
 	import { fade } from 'svelte/transition';
 	import { flip } from 'svelte/animate';
-	import { Feature } from 'ol';
 
 	export let tour = {};
 	export let activePath = '';
@@ -13,7 +12,7 @@
 	};
 </script>
 
-<div class="bg-white w-full h-full" transition:fade={{ duration: 2000 }}>
+<div class="bg-white w-full h-full animate-upFit" transition:fade={{ duration: 1600 }}>
 	<div class="p-4 bg-white h-52 w-[80%] m-auto">
 		<div class="path flex justify-between items-center min-w-[300px]">
 			<p class="text-sm font-semibold">
