@@ -10,6 +10,12 @@ body {
 	transition: 1.5s;
 }
 
+.head_image {
+	aspect-ratio: 1/1;
+	width: 30px;
+	padding-right: 9px;
+}
+
 .option-common {
 	padding: 3px 5px;
 	border-radius: 20px;

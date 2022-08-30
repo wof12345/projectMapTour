@@ -26,19 +26,19 @@
 </script>
 
 <nav class="flex items-center justify-between p-6 pl-8 pr-8 shadow-md fixed z-30 w-screen bg-white">
-	<logo>
-		<img src="" alt="" />
+	<logo class="flex items-center">
+		<img class="head_image" src="logo.svg" alt="" />
 		<p class="font-bold">Waive</p>
 	</logo>
 
 	<navLinks class="w-max flex items-center justify-between">
 		{#each navLinks as link, index}
 			<button
-				class="p-5 pt-2 pb-2 {activeID === index ? 'text-blue-500' : ''}"
+				class="p-5 pt-2 pb-2 flex items-center {activeID === index ? 'text-blue-500' : ''}"
 				on:click={clickListenerDispatcher.bind(this, index)}
 			>
-				<img src={link.imgSrc} alt="" />
-				<p>{link.linkName}</p>
+				<img class="head_image" src={link.imgSrc} alt="" />
+				<p class="text-sm">{link.linkName}</p>
 			</button>
 		{/each}
 	</navLinks>

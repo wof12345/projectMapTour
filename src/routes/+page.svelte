@@ -7,10 +7,10 @@
 	import { fly, fade, slide } from 'svelte/transition';
 
 	let currentNavLinks = [
-		{ imgSrc: '', linkName: 'Events' },
-		{ imgSrc: '', linkName: 'Foods' },
-		{ imgSrc: '', linkName: 'Offers' },
-		{ imgSrc: '', linkName: 'Services' }
+		{ imgSrc: 'calendar.svg', linkName: 'Events' },
+		{ imgSrc: 'food.svg', linkName: 'Foods' },
+		{ imgSrc: 'offer.svg', linkName: 'Offers' },
+		{ imgSrc: 'settings.svg', linkName: 'Services' }
 	];
 
 	let currentOptions = [
@@ -135,10 +135,12 @@
 
 	function animation01Start(passedWidth) {
 		loadBar.opacity = '0';
+
 		setTimeout(() => {
 			widthMain = passedWidth;
 			loadBar.width = 'full';
 			loadBar.opacity = '1';
+			console.log(widthMain);
 		}, 200);
 
 		setTimeout(() => {
