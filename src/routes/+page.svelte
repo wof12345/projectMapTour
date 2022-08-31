@@ -4,7 +4,15 @@
 	import Nav from '../lib/nav.svelte';
 	import Tour from '../lib/tour.svelte';
 	import Tourpage from '../lib/tourpage.svelte';
+	import LoadBar from '../lib/loadbar.svelte';
 	import { fly, fade, slide } from 'svelte/transition';
+	import Map from '../lib/map.svelte';
+	import Mapoptions from '../lib/mapoptions.svelte';
+
+	let mapOptions = [
+		{ title: 'OpenSM', value: 'OpenSM' },
+		{ title: 'StamenTerrain', value: 'StamenTerrain' }
+	];
 
 	let currentNavLinks = [
 		{ imgSrc: 'calendar.svg', linkName: 'Events' },
@@ -80,8 +88,12 @@
 	let activeHead = '';
 	let activeTour = currentItemData[0];
 	let tourPageShown = false;
-	let widthMain = 'full';
-	let loadBar = { width: '0', opacity: '0' };
+	let widthMain = '100%';
+	let loadBarMain = { width: '0', opacity: '0' };
+
+	let mapLayerLogics = {
+		mapRadioValue: ''
+	};
 
 	onMount(() => {
 		const iconFeature = new ol.Feature({
@@ -91,24 +103,24 @@
 
 		const map = new ol.Map({
 			target: 'map',
-			layers: [
-				new ol.layer.Tile({
-					source: new ol.source.OSM()
-				}),
-				new ol.layer.Vector({
-					source: new ol.source.Vector({
-						features: [iconFeature]
-					}),
-					style: new ol.style.Style({
-						image: new ol.style.Icon({
-							anchor: [2.349014, 48.864716],
-							anchorXUnits: 'fraction',
-							anchorYUnits: 'pixels',
-							src: 'mappin.svg'
-						})
-					})
-				})
-			],
+			// layers: [
+			// 	new ol.layer.Tile({
+			// 		source: new ol.source.OSM()
+			// 	}),
+			// 	new ol.layer.Vector({
+			// 		source: new ol.source.Vector({
+			// 			features: [iconFeature]
+			// 		}),
+			// 		style: new ol.style.Style({
+			// 			image: new ol.style.Icon({
+			// 				anchor: [2.349014, 48.864716],
+			// 				anchorXUnits: 'fraction',
+			// 				anchorYUnits: 'pixels',
+			// 				src: 'mappin.svg'
+			// 			})
+			// 		})
+			// 	})
+			// ],
 			view: new ol.View({
 				center: ol.proj.fromLonLat([2.349014, 48.864716]),
 				zoom: 12,
@@ -121,39 +133,65 @@
 				url: `https://stamen-tiles.a.ssl.fastly.net/terrain/{z}/{x}/{y}.jpg`,
 				attributions: 'Map tiles by Stamen'
 			}),
-			visible: true,
-			title: 'Stamen Terrain'
+			visible: false,
+			title: 'StamenTerrain'
 		});
-		// map.addLayer(stamenTerrain);
+
+		const openSM = new ol.layer.Tile({
+			source: new ol.source.OSM(),
+			visible: true,
+			title: 'OpenSM'
+		});
+		// map.addLayer(stamenTerrain);	https://tile.openstreetmap.org/${z}/${x}/${y}.png
+
+		const baseLayerGroup = new ol.layer.Group({
+			layers: [openSM, stamenTerrain]
+		});
+
+		map.addLayer(baseLayerGroup);
+
+		let radioBtns = document.querySelectorAll(`.mr_1`);
+		radioBtns.forEach((elm) => {
+			elm.addEventListener('change', (e) => {
+				let curValue = elm.value;
+
+				baseLayerGroup.getLayers().forEach((element, index, arr) => {
+					let baseTitleLayer = element.get('title');
+					if (baseTitleLayer === curValue) {
+						element.values_.visible = true;
+					} else element.values_.visible = false;
+				});
+			});
+		});
 
 		map.on('click', (e) => {
 			console.log(e.coordinate);
 		});
 	});
 
-	animation01Start('2/3');
+	animation01Start('66.66%');
 
 	function animation01Start(passedWidth) {
-		loadBar.opacity = '0';
+		loadBarMain.opacity = '0';
 
 		setTimeout(() => {
 			widthMain = passedWidth;
-			loadBar.width = 'full';
-			loadBar.opacity = '1';
-			console.log(widthMain);
+			loadBarMain.width = '100%';
+			loadBarMain.opacity = '1';
+			// console.log(widthMain);
 		}, 200);
 
 		setTimeout(() => {
-			loadBar.opacity = '0';
+			loadBarMain.opacity = '0';
 		}, 1000);
 
 		setTimeout(() => {
-			loadBar.width = '0';
-		}, 1500);
+			loadBarMain.width = '0';
+		}, 1600);
 	}
 
 	function changeAnimationParam() {
-		widthMain = 'full';
+		widthMain = '100%';
 		animation01Start(widthMain);
 	}
 
@@ -192,15 +230,13 @@
 
 <div class="h-screen w-screen overflow-x-hidden">
 	<Nav on:message={handleCatagoryChange} navLinks={currentNavLinks} />
-	<div class="w-screen h-0.5 fixed top-[92px] z-30 ">
-		<div
-			class="transition_custom01 w-{loadBar.width} opacity-{loadBar.opacity} h-full bg-blue-600 "
-		/>
-	</div>
+
+	<LoadBar loadBar={loadBarMain} />
 
 	<div class="h-[650px] w-full flex mt-[92px]">
 		<div
-			class="transition_custom01 h-full w-{widthMain} overflow-y-auto shadow-2xl  absolute bg-white z-10"
+			class="transition_custom01 h-full overflow-y-auto shadow-2xl  absolute bg-white z-20"
+			style="width:{widthMain};"
 		>
 			{#if !tourPageShown}
 				<div
@@ -236,6 +272,8 @@
 			{/if}
 		</div>
 
-		<div class="h-full w-2/6 absolute  right-0 " id="map" />
+		<Mapoptions options={mapOptions} />
+
+		<Map />
 	</div>
 </div>

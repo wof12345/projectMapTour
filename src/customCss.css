@@ -32,6 +32,13 @@ body {
 	opacity: 0.5;
 }
 
+.radio_cont {
+	display: flex;
+	align-items: center;
+	justify-content: flex-start;
+	padding: 1px;
+}
+
 ::-webkit-scrollbar {
 	width: 1px;
 }
