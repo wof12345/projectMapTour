@@ -96,31 +96,8 @@
 	};
 
 	onMount(() => {
-		const iconFeature = new ol.Feature({
-			geometry: new ol.geom.Point([261349.18986250658, 6250072.354477512]), //This marker will not move.
-			name: 'Somewhere'
-		});
-
 		const map = new ol.Map({
 			target: 'map',
-			// layers: [
-			// 	new ol.layer.Tile({
-			// 		source: new ol.source.OSM()
-			// 	}),
-			// 	new ol.layer.Vector({
-			// 		source: new ol.source.Vector({
-			// 			features: [iconFeature]
-			// 		}),
-			// 		style: new ol.style.Style({
-			// 			image: new ol.style.Icon({
-			// 				anchor: [2.349014, 48.864716],
-			// 				anchorXUnits: 'fraction',
-			// 				anchorYUnits: 'pixels',
-			// 				src: 'mappin.svg'
-			// 			})
-			// 		})
-			// 	})
-			// ],
 			view: new ol.View({
 				center: ol.proj.fromLonLat([2.349014, 48.864716]),
 				zoom: 12,
@@ -142,7 +119,6 @@
 			visible: true,
 			title: 'OpenSM'
 		});
-		// map.addLayer(stamenTerrain);	https://tile.openstreetmap.org/${z}/${x}/${y}.png
 
 		const baseLayerGroup = new ol.layer.Group({
 			layers: [openSM, stamenTerrain]
@@ -164,8 +140,52 @@
 			});
 		});
 
+		const fillStyle = new ol.style.Fill({
+			color: [84, 118, 255, 0.7]
+		});
+		const strokeStyle = new ol.style.Stroke({
+			color: [84, 118, 255, 0.7]
+		});
+		const circleStyle = new ol.style.Circle({
+			fill: new ol.style.Fill({
+				color: [245, 49, 5, 1],
+				radius: 7,
+				stroke: strokeStyle
+			})
+		});
+
+		const allCountries = new ol.layer.Vector({
+			source: new ol.source.Vector({
+				url: 'countries.geojson',
+				format: new ol.format.GeoJSON()
+			}),
+			visible: true,
+			title: 'Countries',
+			style: new ol.style.Style({
+				fill: fillStyle,
+				stroke: strokeStyle,
+				image: circleStyle
+			})
+		});
+
+		map.addLayer(allCountries);
+
+		let overlay = document.querySelector(`.map_info`);
+		const overlayLayer = new ol.Overlay({
+			element: overlay
+		});
+
+		map.addLayer(overlayLayer);
+
+		const overlayNameDisplay = document.querySelector(`.feature_name`);
+
 		map.on('click', (e) => {
-			console.log(e.coordinate);
+			map.forEachFeatureAtPixel(e.pixel, (feature, layer) => {
+				let coordinate = e.coordinate;
+				let featureName = feature.get('name');
+				overlayLayer.setPosition(coordinate);
+				overlayNameDisplay.innerHTML = featureName;
+			});
 		});
 	});
 
@@ -273,6 +293,10 @@
 		</div>
 
 		<Mapoptions options={mapOptions} />
+
+		<div class="map_info">
+			<p class="feature_name" />
+		</div>
 
 		<Map />
 	</div>
