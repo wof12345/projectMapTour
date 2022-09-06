@@ -171,18 +171,24 @@
 		map.addLayer(allCountries);
 
 		let overlay = document.querySelector(`.map_info`);
+		console.log(overlay);
+
 		const overlayLayer = new ol.Overlay({
 			element: overlay
 		});
 
-		map.addLayer(overlayLayer);
+		map.addOverlay(overlayLayer);
 
-		const overlayNameDisplay = document.querySelector(`.feature_name`);
+		const overlayNameDisplay = overlay.querySelector(`.feature_name`);
+		console.log(overlayNameDisplay);
 
 		map.on('click', (e) => {
+			overlayLayer.setPosition(undefined);
 			map.forEachFeatureAtPixel(e.pixel, (feature, layer) => {
 				let coordinate = e.coordinate;
-				let featureName = feature.get('name');
+				console.log(feature, layer.style_);
+
+				let featureName = feature.get('ADMIN');
 				overlayLayer.setPosition(coordinate);
 				overlayNameDisplay.innerHTML = featureName;
 			});
@@ -294,8 +300,8 @@
 
 		<Mapoptions options={mapOptions} />
 
-		<div class="map_info">
-			<p class="feature_name" />
+		<div class="map_info bg-white p-2">
+			<p class="feature_name">Demo</p>
 		</div>
 
 		<Map />
