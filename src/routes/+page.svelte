@@ -8,6 +8,7 @@
 	import { fly, fade, slide } from 'svelte/transition';
 	import Map from '../lib/map.svelte';
 	import Mapoptions from '../lib/mapoptions.svelte';
+	import { generateData } from '../lib/additionalfunctionality.svelte';
 
 	let mapOptions = [
 		{ title: 'OpenSM', value: 'OpenSM' },
@@ -95,13 +96,15 @@
 		mapRadioValue: ''
 	};
 
+	generateData(10);
+
 	onMount(() => {
 		const map = new ol.Map({
 			target: 'map',
 			view: new ol.View({
-				center: ol.proj.fromLonLat([2.349014, 48.864716]),
+				center: ol.proj.fromLonLat([21.4225, 39.8262]),
 				zoom: 12,
-				minZoom: 4
+				minZoom: 1
 			})
 		});
 
@@ -140,38 +143,44 @@
 			});
 		});
 
-		const fillStyle = new ol.style.Fill({
-			color: [84, 118, 255, 0.7]
-		});
-		const strokeStyle = new ol.style.Stroke({
-			color: [84, 118, 255, 0.7]
-		});
-		const circleStyle = new ol.style.Circle({
+		var markerCommonStyle = new ol.style.Style({
 			fill: new ol.style.Fill({
-				color: [245, 49, 5, 1],
-				radius: 7,
-				stroke: strokeStyle
-			})
-		});
-
-		const allCountries = new ol.layer.Vector({
-			source: new ol.source.Vector({
-				url: 'countries.geojson',
-				format: new ol.format.GeoJSON()
+				color: 'rgba(0,0,0,1)'
 			}),
-			visible: true,
-			title: 'Countries',
-			style: new ol.style.Style({
-				fill: fillStyle,
-				stroke: strokeStyle,
-				image: circleStyle
+			stroke: new ol.style.Stroke({
+				color: 'rgba(0,0,0,1)',
+				width: 3
+			}),
+
+			image: new ol.style.Circle({
+				radius: 10,
+				fill: new ol.style.Fill({
+					color: 'black'
+				}),
+				stroke: new ol.style.Stroke({
+					color: 'rgba(0,0,0,1)',
+					width: 3
+				})
 			})
 		});
 
-		map.addLayer(allCountries);
+		var marker = new ol.Feature({
+			geometry: new ol.geom.Point(ol.proj.fromLonLat([21.4225, 39.8262])),
+			type: 'Tour spot',
+			name: 'test'
+		});
+
+		var markerLayer = new ol.layer.Vector({
+			title: 'POI',
+			source: new ol.source.Vector({
+				features: [marker]
+			}),
+			style: markerCommonStyle
+		});
+
+		map.addLayer(markerLayer);
 
 		let overlay = document.querySelector(`.map_info`);
-		console.log(overlay);
 
 		const overlayLayer = new ol.Overlay({
 			element: overlay
@@ -180,13 +189,12 @@
 		map.addOverlay(overlayLayer);
 
 		const overlayNameDisplay = overlay.querySelector(`.feature_name`);
-		console.log(overlayNameDisplay);
 
 		map.on('click', (e) => {
 			overlayLayer.setPosition(undefined);
 			map.forEachFeatureAtPixel(e.pixel, (feature, layer) => {
 				let coordinate = e.coordinate;
-				console.log(feature, layer.style_);
+				console.log(feature, layer);
 
 				let featureName = feature.get('ADMIN');
 				overlayLayer.setPosition(coordinate);
