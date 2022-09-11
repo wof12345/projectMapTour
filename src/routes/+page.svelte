@@ -6,9 +6,15 @@
 	import Tourpage from '../lib/tourpage.svelte';
 	import LoadBar from '../lib/loadbar.svelte';
 	import { fly, fade, slide } from 'svelte/transition';
+
 	import Map from '../lib/map.svelte';
 	import Mapoptions from '../lib/mapoptions.svelte';
-	import { generateData } from '../lib/additionalfunctionality.svelte';
+	import {
+		generateData,
+		pointOfInterestGen,
+		addBaseLayers,
+		addMarkerLayer
+	} from '../lib/additionalfunctionality.svelte';
 
 	let mapOptions = [
 		{ title: 'OpenSM', value: 'OpenSM' },
@@ -27,61 +33,31 @@
 		{ type: 'normal', name: 'Resturants' }
 	];
 
-	let currentItemData = [
-		{
-			tourId: '#001tourDetails',
-			tourType: 'Event',
-			tourName: 'France',
-			tourDate: '',
-			tourLocation: {
-				coordinates: [],
-				string: []
-			},
-			imgSrc: ['mime.jpg', 'mime.jpg', 'mime.jpg', 'mime.jpg'],
-			price: '343',
-			title: 'rand',
-			smallDesc: 'asf',
-			userOppertunity: "What you'll do",
-			whatUserDoes: 'lorem',
-			keyFeatures: [
-				{ featureName: 'feature1', featureImg: 'mime.jpg', featureDesc: 'lorem' },
-				{ featureName: 'feature1', featureImg: 'mime.jpg', featureDesc: 'lorem' },
-				{ featureName: 'feature1', featureImg: 'mime.jpg', featureDesc: 'lorem' },
-				{ featureName: 'feature1', featureImg: 'mime.jpg', featureDesc: 'lorem' }
-			],
-			meetUsersHost: {
-				hostImg: 'mime.jpg',
-				hostName: 'Alenka kutros',
-				hostDesc: 'Hello lorem'
-			},
-			likes: 0,
-			tourLink: 'www.rand.com'
+	let demoTour = {
+		tourId: '#002tourDetails',
+		tourType: 'Event',
+		tourName: 'France',
+		tourDate: '',
+		tourLocation: {
+			coordinates: [],
+			string: []
 		},
-		{
-			tourId: '#002tourDetails',
-			tourType: 'Event',
-			tourName: 'France',
-			tourDate: '',
-			tourLocation: {
-				coordinates: [],
-				string: []
-			},
-			imgSrc: ['mime.jpg', 'mime.jpg', 'mime.jpg', 'mime.jpg'],
-			price: '343',
-			title: 'The Darkest Secrets of Paris',
-			smallDesc: 'asf',
-			userOppertunity: "What you'll do",
-			whatUserDoes: 'lorem',
-			keyFeatures: [{ featureName: 'feature1', featureImg: 'mime.jpg', featureDesc: 'lorem' }],
-			meetUsersHost: {
-				hostImg: '',
-				hostName: '',
-				hostDesc: ''
-			},
-			likes: 0,
-			tourLink: `www.thedarkestparis.com`
-		}
-	];
+		imgSrc: ['mime.jpg', 'mime.jpg', 'mime.jpg', 'mime.jpg'],
+		price: '343',
+		title: 'The Darkest Secrets of Paris',
+		smallDesc: 'asf',
+		userOppertunity: "What you'll do",
+		whatUserDoes: 'lorem',
+		keyFeatures: [{ featureName: 'feature1', featureImg: 'mime.jpg', featureDesc: 'lorem' }],
+		meetUsersHost: {
+			hostImg: '',
+			hostName: '',
+			hostDesc: ''
+		},
+		likes: 0,
+		tourLink: `www.thedarkestparis.com`
+	};
+	let currentItemData = [];
 
 	let catagories = [[], [], [], []];
 
@@ -92,115 +68,35 @@
 	let widthMain = '100%';
 	let loadBarMain = { width: '0', opacity: '0' };
 
+	let mainMap = 'visible';
+
 	let mapLayerLogics = {
 		mapRadioValue: ''
 	};
 
-	generateData(10);
+	//init calls
+	populateCatagories();
+	activeCatagory = catagories[0];
+	activeHead = 'Events';
 
 	onMount(() => {
+		currentItemData = generateData(10);
+		let currentMarkerFeatures = pointOfInterestGen(currentItemData);
+		populateCatagories();
+		activeCatagory = catagories[0];
+
 		const map = new ol.Map({
 			target: 'map',
 			view: new ol.View({
 				center: ol.proj.fromLonLat([21.4225, 39.8262]),
-				zoom: 12,
+				zoom: 2,
 				minZoom: 1
 			})
 		});
 
-		const stamenTerrain = new ol.layer.Tile({
-			source: new ol.source.XYZ({
-				url: `https://stamen-tiles.a.ssl.fastly.net/terrain/{z}/{x}/{y}.jpg`,
-				attributions: 'Map tiles by Stamen'
-			}),
-			visible: false,
-			title: 'StamenTerrain'
-		});
+		addBaseLayers(map);
 
-		const openSM = new ol.layer.Tile({
-			source: new ol.source.OSM(),
-			visible: true,
-			title: 'OpenSM'
-		});
-
-		const baseLayerGroup = new ol.layer.Group({
-			layers: [openSM, stamenTerrain]
-		});
-
-		map.addLayer(baseLayerGroup);
-
-		let radioBtns = document.querySelectorAll(`.mr_1`);
-		radioBtns.forEach((elm) => {
-			elm.addEventListener('change', (e) => {
-				let curValue = elm.value;
-
-				baseLayerGroup.getLayers().forEach((element, index, arr) => {
-					let baseTitleLayer = element.get('title');
-					if (baseTitleLayer === curValue) {
-						element.values_.visible = true;
-					} else element.values_.visible = false;
-				});
-			});
-		});
-
-		var markerCommonStyle = new ol.style.Style({
-			fill: new ol.style.Fill({
-				color: 'rgba(0,0,0,1)'
-			}),
-			stroke: new ol.style.Stroke({
-				color: 'rgba(0,0,0,1)',
-				width: 3
-			}),
-
-			image: new ol.style.Circle({
-				radius: 10,
-				fill: new ol.style.Fill({
-					color: 'black'
-				}),
-				stroke: new ol.style.Stroke({
-					color: 'rgba(0,0,0,1)',
-					width: 3
-				})
-			})
-		});
-
-		var marker = new ol.Feature({
-			geometry: new ol.geom.Point(ol.proj.fromLonLat([21.4225, 39.8262])),
-			type: 'Tour spot',
-			name: 'test'
-		});
-
-		var markerLayer = new ol.layer.Vector({
-			title: 'POI',
-			source: new ol.source.Vector({
-				features: [marker]
-			}),
-			style: markerCommonStyle
-		});
-
-		map.addLayer(markerLayer);
-
-		let overlay = document.querySelector(`.map_info`);
-
-		const overlayLayer = new ol.Overlay({
-			element: overlay
-		});
-
-		map.addOverlay(overlayLayer);
-
-		const overlayNameDisplay = overlay.querySelector(`.feature_name`);
-
-		map.on('click', (e) => {
-			overlayLayer.setPosition(undefined);
-			map.forEachFeatureAtPixel(e.pixel, (feature, layer) => {
-				let coordinate = e.coordinate;
-				console.log(feature, layer);
-
-				let featureName = feature.get('ADMIN');
-				overlayLayer.setPosition(coordinate);
-				overlayNameDisplay.innerHTML = featureName;
-			});
-		});
+		addMarkerLayer(currentMarkerFeatures, map, currentItemData);
 	});
 
 	animation01Start('66.66%');
@@ -224,8 +120,8 @@
 		}, 1600);
 	}
 
-	function changeAnimationParam() {
-		widthMain = '100%';
+	function changeAnimationParam(passedWidth) {
+		widthMain = passedWidth;
 		animation01Start(widthMain);
 	}
 
@@ -249,17 +145,29 @@
 	}
 
 	function invokeViewPage(event) {
-		console.log(event.detail.text);
-		setTimeout(() => {
-			tourPageShown = true;
-			changeAnimationParam();
-		}, 300);
-	}
+		let eventType = event.detail.text;
+		console.log(eventType);
 
-	//init calls
-	populateCatagories();
-	activeCatagory = catagories[0];
-	activeHead = 'Events';
+		if (eventType) {
+			activeTour = undefined;
+			for (let i = 0; i < currentItemData.length; i++) {
+				if (currentItemData[i].tourId === eventType) {
+					activeTour = currentItemData[i];
+					break;
+				}
+			}
+
+			setTimeout(() => {
+				tourPageShown = true;
+				changeAnimationParam('100%');
+				mainMap = 'hidden';
+			}, 300);
+		} else {
+			tourPageShown = false;
+			changeAnimationParam('66.66%');
+			mainMap = 'visible';
+		}
+	}
 </script>
 
 <div class="h-screen w-screen overflow-x-hidden">
@@ -267,7 +175,7 @@
 
 	<LoadBar loadBar={loadBarMain} />
 
-	<div class="h-[650px] w-full flex mt-[92px]">
+	<div class="main_cont h-[650px] w-full flex mt-[92px]">
 		<div
 			class="transition_custom01 h-full overflow-y-auto shadow-2xl  absolute bg-white z-20"
 			style="width:{widthMain};"
@@ -275,7 +183,8 @@
 			{#if !tourPageShown}
 				<div
 					class="h-screen  w-full  flex flex-col [&>*]:my-3 pl-9 animate-upFit "
-					transition:fade={{ duration: 1300 }}
+					in:fade={{ duration: 1300 }}
+					out:fade={{ duration: 1300 }}
 				>
 					<h1 class="text-xl px-9">{activeCatagory.length} {activeHead} near you</h1>
 
@@ -295,23 +204,26 @@
 						{/each}
 					</div>
 
-					<div class="flex flex-wrap justify-between p-6 px-8 max-w-[720px]">
+					<div class="flex flex-wrap justify-between p-6 px-8 max-w-[720px] h-">
 						{#each activeCatagory as item}
-							<Tour on:message={invokeViewPage} {item} />
+							<Tour on:message={invokeViewPage} {item} type={'map'} />
 						{/each}
 					</div>
 				</div>
 			{:else}
-				<Tourpage activePath={activeHead} tour={activeTour} />
+				<Tourpage
+					on:message={invokeViewPage}
+					activePath={activeHead}
+					tour={activeTour}
+					mainMap={'visible relative h-80 w-2/3 m-auto mt-20'}
+				/>
 			{/if}
 		</div>
 
 		<Mapoptions options={mapOptions} />
 
-		<div class="map_info bg-white p-2">
-			<p class="feature_name">Demo</p>
-		</div>
+		<Tour on:message={invokeViewPage} item={demoTour} type={'map'} />
 
-		<Map />
+		<Map visible={mainMap} />
 	</div>
 </div>

@@ -25,13 +25,15 @@
 	}
 </script>
 
-<nav class="flex items-center justify-between p-6 pl-8 pr-8 shadow-md fixed z-30 w-screen bg-white">
-	<logo class="flex items-center">
+<nav
+	class="flex items-center justify-between p-6 pl-8 pr-8 shadow-md fixed z-30 w-screen bg-white flex-wrap"
+>
+	<logo class="flex items-center self-center">
 		<img class="head_image" src="logo.svg" alt="" />
 		<p class="font-bold">Waive</p>
 	</logo>
 
-	<navLinks class="w-max flex items-center justify-between">
+	<navLinks class="w-max flex items-center justify-between flex-wrap mx-6">
 		{#each navLinks as link, index}
 			<button
 				class="p-5 pt-2 pb-2 flex items-center {activeID === index ? 'text-blue-500' : ''}"
@@ -43,7 +45,7 @@
 		{/each}
 	</navLinks>
 
-	<userpart class="flex items-center">
+	<userpart class="flex items-center  self-end">
 		<language>
 			<select name="" id="">
 				<option value="en">En</option>

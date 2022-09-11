@@ -1,27 +1,66 @@
 <script>
 	import { fade, fly } from 'svelte/transition';
+	import { createEventDispatcher } from 'svelte';
 	import { flip } from 'svelte/animate';
+	import Map from '../lib/map.svelte';
+	import { onMount } from 'svelte';
+	import { addBaseLayers, addMarkerLayer } from '../lib/additionalfunctionality.svelte';
+
+	const dispatch = createEventDispatcher();
 
 	export let tour = {};
 	export let activePath = '';
-	console.log(tour.tourName);
+	export let mainMap = 'hidden';
+	// console.log('Passed tour', tour);
 
 	let saved = {
 		state: false,
 		sign: '\u2661'
 	};
+
+	function clickListenerDispatcher(msg) {
+		dispatch('message', {
+			text: msg
+		});
+	}
+	onMount(() => {
+		console.log(tour.tourLocation.coordinates);
+
+		const map = new ol.Map({
+			target: 'map',
+			view: new ol.View({
+				center: ol.proj.fromLonLat(tour.tourLocation.coordinates),
+				zoom: 12,
+				minZoom: 1
+			})
+		});
+
+		addBaseLayers(map);
+
+		var marker = new ol.Feature({
+			geometry: new ol.geom.Point(ol.proj.fromLonLat(tour.tourLocation.coordinates)),
+			type: tour.tourType,
+			name: tour.tourName,
+			id: tour.tourId
+		});
+
+		addMarkerLayer([marker], map, [tour]);
+	});
 </script>
 
 <div
 	class="transition_custom01 bg-white w-full h-full animate-upFit"
-	transition:fly={{ duration: 1300 }}
+	in:fly={{ duration: 1300 }}
+	out:fly={{ y: 400, duration: 1300 }}
 >
 	<div class="p-4 bg-white h-52 w-[80%] m-auto">
 		<div class="path flex justify-between items-center min-w-[300px]">
-			<p class="text-sm font-semibold">
-				{activePath} &nbsp;&nbsp; > &nbsp;&nbsp;
-				<span class="text-sm text-gray-600">{tour.title}</span>
-			</p>
+			<div class="text-sm font-semibold hover:cursor-pointer flex">
+				<p class="hover:text-blue-600" on:click={clickListenerDispatcher.bind(this, undefined)}>
+					{activePath}
+				</p>
+				<span class="text-sm text-gray-600">&nbsp;&nbsp; > &nbsp;&nbsp; {tour.title}</span>
+			</div>
 
 			<button
 				class="save flex justify-center items-center rounded-lg hover:bg-slate-400 hover:opacity-60 hover:text-white text-blue-400 px-2"
@@ -47,7 +86,7 @@
 			</p>
 		</div>
 
-		<div class="header_tour_outer flex justify-between items-center">
+		<div class="header_tour_outer flex justify-between items-center flex-wrap">
 			<div class="header_tour py-7">
 				<h2 class="font-bold text-2xl ">{tour.title}</h2>
 				<p class="font-extralight text-sm text-gray-400">{tour.tourName}</p>
@@ -92,5 +131,7 @@
 				</div>
 			</div>
 		</div>
+
+		<Map visible={mainMap} />
 	</div>
 </div>
