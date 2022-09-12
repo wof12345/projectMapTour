@@ -6,7 +6,8 @@
 	import Tourpage from '../lib/tourpage.svelte';
 	import LoadBar from '../lib/loadbar.svelte';
 	import { fly, fade, slide } from 'svelte/transition';
-
+	import { getBottomLeft, getTopRight } from 'ol/extent';
+	import { toLonLat } from 'ol/proj';
 	import Map from '../lib/map.svelte';
 	import Mapoptions from '../lib/mapoptions.svelte';
 	import {
@@ -97,6 +98,14 @@
 		addBaseLayers(map);
 
 		addMarkerLayer(currentMarkerFeatures, map, currentItemData);
+
+		map.on('moveend', (e) => {
+			const mapRef = e.map;
+			const extent = mapRef.getView().calculateExtent(map.getSize());
+			const bottomLeft = toLonLat(getBottomLeft(extent));
+			const topRight = toLonLat(getTopRight(extent));
+			console.log(bottomLeft, topRight);
+		});
 	});
 
 	animation01Start('66.66%');
