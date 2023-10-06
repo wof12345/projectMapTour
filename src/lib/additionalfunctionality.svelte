@@ -7,8 +7,8 @@
 		let data = [];
 
 		for (let i = 0; i < numberOfData; i++) {
-			let lat = +faker.address.latitude(20, -20);
-			let long = +faker.address.longitude(20, -20);
+			let lat = +faker.address.latitude(80, 10);
+			let long = +faker.address.longitude(80, 10);
 			let country = faker.address.country();
 			// console.log(lat, long);
 
