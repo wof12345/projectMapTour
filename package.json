@@ -33,7 +33,6 @@
 	"dependencies": {
 		"@turf/center": "^6.5.0",
 		"@turf/turf": "^6.5.0",
-		"faker": "^6.6.6",
-		"ol": "^6.15.1"
+		"faker": "^6.6.6"
 	}
 }
